@@ -1,0 +1,150 @@
+=head1 NAME
+
+snapshot
+
+Simple utility which uses diff/patch to snapshot
+a single text file without touching the original file.
+
+=head1 SYNOPSIS
+
+snapshot <OPERATION> [OPTIONS] <FILE>
+
+=head1 DESCRIPTION
+
+When a revision history of a single file in a home directory is desired,
+all of the other version control systems are difficult to use in
+such a simple use case.  RCS, CVS, and git are suited for multi-user
+collaborations on entire directory trees.  Tracking one file is a pain.
+Most of these use a "black box" data storage.  Common
+operations like check-ins can also delete and then recreate the source
+file, which freaks out most text editors.
+
+I wanted something that used common GNU diff and patch tools and stored
+patches in a hidden directory for a single file.  You can even view
+or edit the individual patch revisions if you want.  And it supports
+a simple comment in each patch if you desire.  All without ever modifying
+the original source file.
+
+This is meant to be run from a cron job to keep track of text files like
+a I<.bashrc>, or a scratchpad of notes or to-do lists.
+
+=head1 REQUIREMENTS
+
+This script requires perl packages:
+
+=over 5 
+
+=item * Getopt::Long (perl-Getopt-Long)
+
+=item * Pod::Usage (perl-Pod-Usage)
+
+=item * Switch (libswitch-perl or perl-Switch)
+
+=item * File::Spec
+
+=back 
+
+Requires GNU utilities I<diff>, I<patch>, I<mktemp> and I<date>
+
+=head1 OPERATION
+
+=over 5
+
+=item B<save>
+
+Save a diff of the file
+
+=over 5 
+
+=item B<--message or -m> <string>
+
+Optionally add a message to the diff file.  Keep it only one line.
+
+=back 
+
+=item B<restore>
+
+Roll through the diffs and create a temp file at
+a snapshotted point in time.  Does B<NOT> modify
+the original file.
+
+=over 5
+
+=item B<--time or -t> <string>
+
+By default, restore will patch up to the most recent 
+patch file stored in the snapshot directory.  Specify
+a time string to be parsed by your local 
+GNU I<date --date> utility.  Examples like "last Thursday",
+"2021-12-08 13:27:00" or "2 weeks ago + 5 hours"
+
+=back 
+
+=item B<view>
+
+Restore a snapshot to a temp file and view it with whatever
+your $EDITOR is set to.  
+
+Also accepts the I<--time> parameter like the I<restore> operation. 
+After your editor exits, the temp file will be deleted.
+
+=item B<list>
+
+List the snapshots for this file
+
+=back 
+
+=head1 GLOBAL OPTIONS
+
+=over 5
+
+=item B<--help>
+
+Show usage information
+
+=item B<--man>
+
+Show the full manual page.  Includes more content than the --help display.
+
+=item B<--snapshot_dir> </path/to/directory>
+
+By default, I<snapshot> creates a new subdirectory within the absolute path
+of the given I<FILE>.  The directory name is I<.FILE-snapshot>
+
+Override this if you want something special.
+
+=item B<--verbose> B<--debug> 
+
+By default, this script runs fairly quiet for use with scripts and crontabs.  
+Add verbose or debug for extra noise
+
+=back
+
+=head1 EXAMPLES
+
+=over 5
+
+=item B<Start or save a new snapshot>
+
+  $ snapshot save myfile.txt
+
+  $ snapshot save --verbose --message "Updates to TODO list" myfile.txt
+
+=item B<View a list of snapshots>
+
+  $ snapshot list myfile.txt
+  Patch Time                      Comment
+
+  Wed Dec  8 13:10:13 CST 2021    Original Snapshot
+  Wed Dec  8 13:25:07 CST 2021    Updates to TODO list 
+  
+=item B<Restore a temp snapshot>
+
+  $ snapshot restore --time "15 minutes ago" myfile.txt
+  File /tmp/tmp.gN8bAHpsRE is restored to time Wed Dec  8 13:10:13 CST 2021
+
+=item B<View a temp snapshot>
+
+  $ snapshot view --time "last Thursday" myfile.txt
+
+=back
