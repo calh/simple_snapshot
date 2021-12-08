@@ -164,7 +164,7 @@ sub check_filename()
   {
     my $abs_path = File::Spec->rel2abs( $filename );
     my($vol,$dir,$file) = File::Spec->splitpath($abs_path);
-    $snapshot_dir = "${dir}.${\sanitize_filename($filename)}-snapshot/";
+    $snapshot_dir = "${dir}.${\sanitize_filename($file)}-snapshot/";
   }
   unless (-e -d $snapshot_dir)
   {
