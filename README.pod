@@ -147,4 +147,10 @@ Add verbose or debug for extra noise
 
   $ snapshot view --time "last Thursday" myfile.txt
 
+=item B<Files are plain text patches>
+
+  $ ls -l .myfile.txt-snapshot/
+  -rw-rw-r-- 13  Dec  8 13:10 original
+  -rw-rw-r-- 174 Dec  8 13:25 1638991507.patch
+
 =back
