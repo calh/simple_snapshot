@@ -143,6 +143,9 @@ Add verbose or debug for extra noise
   $ snapshot restore --time "15 minutes ago" myfile.txt
   File /tmp/tmp.gN8bAHpsRE is restored to time Wed Dec  8 13:10:13 CST 2021
 
+  $ snapshot restore --time "Wed Dec  8 13:25:07" myfile.txt
+  File /tmp/tmp.qrAayDnLQI is restored to time Wed Dec  8 13:25:07 CST 2021
+
 =item B<View a temp snapshot>
 
   $ snapshot view --time "last Thursday" myfile.txt
