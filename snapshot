@@ -93,6 +93,7 @@ sub do_save()
   open(my $fd, "> $patch_filename") or die "Can't create patch file $patch_filename\n";
   print $fd $diff;
   close($fd);
+  chmod(0400, $patch_filename);
   verbose "Saved patch $patch_filename";
 }
 sub do_restore()
@@ -114,6 +115,7 @@ sub roll_patches()
   my ($when) = @_;
   my $tempfile = `mktemp`;
   chomp $tempfile;
+  chmod(0600, $tempfile);
   if ($when eq "last")
   {
     $when = `ls -t $snapshot_dir |grep -v original | head -1`;
@@ -127,7 +129,8 @@ sub roll_patches()
   verbose "Searching for patch time " . epoch2date($when) if ($when);
 
   system("cp", "-a", "$original_snapshot", "$tempfile");
-
+  chmod(0600, $tempfile);
+  
   my $recent_timestamp = mod_timestamp($original_snapshot);
   foreach my $patch (`ls -tr $snapshot_dir`)
   {
@@ -176,13 +179,15 @@ sub check_filename()
     else
     {
       mkdir($snapshot_dir) or die "Can't create directory $snapshot_dir";
+      chmod(0700, $snapshot_dir);
     }
   }
   $original_snapshot = "${snapshot_dir}/original";
-  unless (-e -w $original_snapshot)
+  unless (-e $original_snapshot)
   {
     # create original base file
     system("cp", $cpargs, "$filename", "$original_snapshot");
+    chmod(0400, $original_snapshot);
   }
   if ( $operation eq "save" )
   {
