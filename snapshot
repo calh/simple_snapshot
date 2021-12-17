@@ -13,6 +13,7 @@ my $man;
 my $message;
 my $restore_time;
 my $operation;
+my $grep_args;
 my $filename;
 my $snapshot_dir;
 my $original_snapshot;
@@ -36,10 +37,30 @@ switch($operation)
   { do_view(); }
   case "list"
   { do_list(); }
+  case "grep"
+  { do_grep(); }
 }
 
 ####################  functions  ########################
 
+sub do_grep()
+{
+  check_filename();
+  foreach my $patch (`ls -tr $snapshot_dir`)
+  {
+    chomp $patch;
+    my $patchfile = "${snapshot_dir}/${patch}";
+    if ( $patch eq "original" )
+    {
+      system("grep $grep_args $patchfile");
+    }
+    else
+    {
+      system("grep -E '^-|^\\+' '${snapshot_dir}/${patch}' | grep -Ev '^---|^\\+\\+\\+' | cut -c 2- | grep $grep_args ");
+    }
+  }
+
+}
 sub do_list()
 {
   check_filename();
@@ -228,6 +249,11 @@ sub parameters()
     {
       $operation = shift @ARGV;
     }
+    case "grep"
+    {
+      $operation = shift @ARGV;
+      $grep_args = join(" ", map {qq('$_')} splice @ARGV, 0, -1);
+    }
     else
     {
     }
@@ -325,7 +351,7 @@ a simple comment in each patch if you desire.  All without ever modifying
 the original source file.
 
 This is meant to be run from a cron job to keep track of text files like
-a I<.bashrc>, or a scratchpad of notes or to-do lists.
+a I<.bashrc>, I<.bash_history> or a scratchpad of notes or to-do lists.
 
 =head1 REQUIREMENTS
 
@@ -391,6 +417,11 @@ After your editor exits, the temp file will be deleted.
 
 List the snapshots for this file
 
+=item B<grep> [OPTIONS]
+
+Grep through the contents of all snapshots.  I<OPTIONS> are passed
+directly to your system's I<grep> utility.
+
 =back 
 
 =head1 GLOBAL OPTIONS
@@ -454,5 +485,10 @@ Add verbose or debug for extra noise
   $ ls -l .myfile.txt-snapshot/
   -rw-rw-r-- 13  Dec  8 13:10 original
   -rw-rw-r-- 174 Dec  8 13:25 1638991507.patch
+
+=item B<Grep your .bash_history snapshots for a command>
+
+  $ snapshot grep 'aws ecs create-service' .bash_history
+  $ snapshot grep -i apigateway .bash_history
 
 =back
