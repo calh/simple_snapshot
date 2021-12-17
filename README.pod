@@ -26,7 +26,7 @@ a simple comment in each patch if you desire.  All without ever modifying
 the original source file.
 
 This is meant to be run from a cron job to keep track of text files like
-a I<.bashrc>, or a scratchpad of notes or to-do lists.
+a I<.bashrc>, I<.bash_history> or a scratchpad of notes or to-do lists.
 
 =head1 REQUIREMENTS
 
@@ -92,6 +92,11 @@ After your editor exits, the temp file will be deleted.
 
 List the snapshots for this file
 
+=item B<grep> [OPTIONS]
+
+Grep through the contents of all snapshots.  I<OPTIONS> are passed
+directly to your system's I<grep> utility.
+
 =back 
 
 =head1 GLOBAL OPTIONS
@@ -155,5 +160,10 @@ Add verbose or debug for extra noise
   $ ls -l .myfile.txt-snapshot/
   -rw-rw-r-- 13  Dec  8 13:10 original
   -rw-rw-r-- 174 Dec  8 13:25 1638991507.patch
+
+=item B<Grep your .bash_history snapshots for a command>
+
+  $ snapshot grep 'aws ecs create-service' .bash_history
+  $ snapshot grep -i apigateway .bash_history
 
 =back
